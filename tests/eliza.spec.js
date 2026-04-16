@@ -201,6 +201,30 @@ test.describe("Input & UI interaction", () => {
     await page.waitForTimeout(800);
     expect(await page.locator(".message.eliza").count()).toBe(elizaBefore);
   });
+
+  test("chat window scrolls to bottom after new messages are added", async ({ page }) => {
+    await loadPage(page);
+    // Send enough messages to push content beyond the visible area
+    for (let i = 0; i < 6; i++) {
+      await chat(page, "I feel very sad and I do not know what to do about it");
+    }
+    const isAtBottom = await page.evaluate(() => {
+      const el = document.getElementById("chat-window");
+      return Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) < 10;
+    });
+    expect(isAtBottom).toBe(true);
+  });
+
+  test("double-clicking Send does not submit the message twice", async ({ page }) => {
+    await loadPage(page);
+    await page.fill("#user-input", "hello");
+    // Click twice rapidly; after the first click the input is cleared,
+    // so the second click sees empty text and is a no-op
+    await page.click("#send-btn");
+    await page.click("#send-btn");
+    await page.waitForTimeout(800);
+    expect(await page.locator(".message.user").count()).toBe(1);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -359,6 +383,17 @@ test.describe("Pattern matching", () => {
     const reply = await chat(page, "my dog died");
     expect(reply).toBe("Why do you say your dog died?");
   });
+
+  test("higher-weight rule wins when multiple patterns match", async ({ page }) => {
+    await loadPage(page);
+    // "I think about my mother every day" matches three rules:
+    //   /i think (.*)/  weight 80  ← should win
+    //   /\bmother\b/    weight 75
+    //   /my (.*)/       weight 45
+    const reply = await chat(page, "I think about my mother every day");
+    // i think rule fires; captured "about my mother every day" → reflected "about your mother every day"
+    expect(reply).toBe("Do you really think about your mother every day?");
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -420,6 +455,16 @@ test.describe("Synonym normalisation", () => {
       "Don't you believe that dream has something to do with your problem?",
     ];
     expect(valid).toContain(reply);
+  });
+
+  test("'i'm' matches the /i'?m/ pattern rule directly", async ({ page }) => {
+    await loadPage(page);
+    const reply = await chat(page, "i'm feeling lost");
+    // The synonym map has "i'm" → "i am" but the replacement regex (\b\w+\b)
+    // cannot match across an apostrophe, so that synonym entry is never reached.
+    // Instead the /i'?m (.*)/ pattern (weight 90) fires directly.
+    // First response (counter=0): "How does being $1 make you feel?"
+    expect(reply).toBe("How does being feeling lost make you feel?");
   });
 });
 
@@ -572,5 +617,86 @@ test.describe("Edge cases", () => {
     await chat(page, "my mom & dad argued");
     const userText = await page.locator(".message.user .text").first().textContent();
     expect(userText).toContain("&");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. Additional Edge Cases
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe("Additional edge cases", () => {
+  test("emoji input renders correctly in the user bubble and produces a response", async ({ page }) => {
+    await loadPage(page);
+    const reply = await chat(page, "😊 I feel happy");
+    expect(reply).toBeTruthy();
+    const userText = await page.locator(".message.user .text").first().textContent();
+    expect(userText).toContain("😊");
+  });
+
+  test("'<' and '>' without a tag are HTML-escaped in the user bubble", async ({ page }) => {
+    await loadPage(page);
+    await chat(page, "score < 10 > 5");
+    const userText = await page.locator(".message.user .text").first().textContent();
+    expect(userText).toContain("<");
+    expect(userText).toContain(">");
+    // No child elements should have been created inside the text div
+    expect(await page.locator(".message.user .text *").count()).toBe(0);
+  });
+
+  test("backtick characters render as plain text, not interpreted as code", async ({ page }) => {
+    await loadPage(page);
+    await chat(page, "`rm -rf /`");
+    const userText = await page.locator(".message.user .text").first().textContent();
+    expect(userText).toContain("`rm -rf /`");
+  });
+
+  test("single and double quotes in input render correctly", async ({ page }) => {
+    await loadPage(page);
+    await chat(page, `she said "hello" and I said 'goodbye'`);
+    const userText = await page.locator(".message.user .text").first().textContent();
+    expect(userText).toContain('"hello"');
+    expect(userText).toContain("'goodbye'");
+  });
+
+  test("input with an embedded newline is handled gracefully", async ({ page }) => {
+    await loadPage(page);
+    const elizaBefore = await page.locator(".message.eliza").count();
+    // Set value directly to bypass the browser's newline stripping in <input type="text">
+    await page.evaluate(() => {
+      document.getElementById("user-input").value = "I feel\ngood today";
+    });
+    await page.press("#user-input", "Enter");
+    await expect(page.locator(".message.eliza")).toHaveCount(elizaBefore + 1, { timeout: 3000 });
+    const reply = await page.locator(".message.eliza .text").last().textContent();
+    expect(reply).toBeTruthy();
+  });
+
+  test("leading and trailing whitespace is trimmed before matching", async ({ page }) => {
+    await loadPage(page);
+    const reply = await chat(page, "   hello   ");
+    // Greeting rule fires (not a fallback), confirming the input was trimmed
+    const validGreetings = [
+      "Hello. How are you feeling today?",
+      "Hi there. Please tell me what's on your mind.",
+      "Hello. How do you do. Please state your problem.",
+    ];
+    expect(validGreetings).toContain(reply);
+    // User bubble also shows the trimmed text
+    const userText = await page.locator(".message.user .text").first().textContent();
+    expect(userText).toBe("hello");
+  });
+
+  test("literal string 'null' produces a response", async ({ page }) => {
+    await loadPage(page);
+    const reply = await chat(page, "null");
+    expect(reply).toBeTruthy();
+    expect((reply || "").length).toBeGreaterThan(0);
+  });
+
+  test("literal string 'undefined' produces a response", async ({ page }) => {
+    await loadPage(page);
+    const reply = await chat(page, "undefined");
+    expect(reply).toBeTruthy();
+    expect((reply || "").length).toBeGreaterThan(0);
   });
 });

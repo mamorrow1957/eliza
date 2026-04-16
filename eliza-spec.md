@@ -176,29 +176,39 @@ npm test
 
 ### Test Suite Overview
 
-61 tests are organised into 7 groups:
+73 tests are organised into 9 groups:
 
 | Group | Tests | Description |
 |---|---|---|
 | Layout & static content | 8 | Page title, header text and subtitle, chat window, input field, Send button, input area within viewport in portrait and landscape tablet sizes |
 | Initialization | 4 | Opening greeting fires on load, correct text, ELIZA speaker label, input focused |
-| Input & UI interaction | 8 | Enter key, Send button, input cleared after submit, user message text/label, multi-turn replies, empty and whitespace-only input rejected |
-| Pattern matching | 21 | Every keyword category: greetings, `I need/am/feel/think/want/can't/wish`, `because`, `sorry`, `mother`, `father`, `dream`, `computer`, `remember`, `yes`, `no`, `always`, `?`, `if`, `my` |
-| Synonym normalisation | 4 | `recollect→remember`, `machine→computer`, `maybe→perhaps`, `dreamt→dream` |
+| Input & UI interaction | 10 | Enter key, Send button, input cleared after submit, user message text/label, multi-turn replies, empty and whitespace-only input rejected, chat window auto-scrolls to bottom, double-click Send guard |
+| Pattern matching | 22 | Every keyword category: greetings, `I need/am/feel/think/want/can't/wish`, `because`, `sorry`, `mother`, `father`, `dream`, `computer`, `remember`, `yes`, `no`, `always`, `?`, `if`, `my`, higher-weight rule wins on multi-rule match |
+| Synonym normalisation | 5 | `recollect→remember`, `machine→computer`, `maybe→perhaps`, `dreamt→dream`, `i'm` matches `/i'?m/` pattern directly |
 | Pronoun reflection | 3 | `I→you`, `my→your`, `me→you` in captured phrases |
 | Response cycling | 3 | Different reply on repeated input, full 4-response cycle wrap, fallback list cycling |
 | Edge cases | 10 | `<script>` XSS, HTML `<b>` injection, 500-character input, all-caps input, punctuation-only input, rapid-fire messages, numeric input, ampersand escaping |
+| Additional edge cases | 8 | Emoji / Unicode, `<`/`>` without tags, backtick injection, single/double quotes, embedded newlines, leading/trailing whitespace trim, `null` literal, `undefined` literal |
 
 ### Edge Case Coverage
 
 - **XSS prevention** — `<script>` tags in user input are HTML-escaped; no script executes and no global is set.
 - **HTML injection** — `<b>` tags appear as literal text; no DOM elements are created inside message bubbles.
+- **`<`/`>` without tags** — angle brackets in plain text (e.g. `score < 10`) are escaped; no spurious child elements are created.
+- **Backtick injection** — backtick characters render as plain text.
+- **Quote characters** — single and double quotes render correctly in the user bubble.
+- **Embedded newlines** — input containing `\n` is handled gracefully and produces a response.
 - **Long input** — inputs exceeding 500 characters are handled gracefully and produce a response.
 - **Case insensitivity** — all-caps input matches the same rules as lowercase.
 - **Empty / whitespace input** — submitting blank input adds no messages to the chat.
+- **Leading/trailing whitespace** — trimmed before matching; user bubble shows the trimmed text.
 - **Rapid-fire messages** — three messages sent in immediate succession each receive a response.
+- **Double-submit guard** — clicking Send twice rapidly produces only one user message, because the input is cleared after the first click.
+- **Auto-scroll** — the chat window scrolls to the bottom after each new message.
 - **Response cycling** — repeated identical input cycles through the rule's response list and wraps back to the first after exhaustion.
 - **Fallback cycling** — unrecognised input advances through the fallback list rather than repeating.
+- **Emoji / Unicode** — non-ASCII characters render correctly in the user bubble and produce a response.
+- **`null` / `undefined` literals** — these strings are handled without errors and produce a fallback response.
 
 ---
 
@@ -211,7 +221,7 @@ eliza/
 ├── playwright.config.js
 ├── package.json
 └── tests/
-    └── eliza.spec.js   # Playwright test suite (61 tests)
+    └── eliza.spec.js   # Playwright test suite (73 tests)
 ```
 
 ---
