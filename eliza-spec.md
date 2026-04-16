@@ -142,6 +142,14 @@ The following substitutions shall be applied word-by-word to captured groups bef
 - User messages: lighter green (`#aaffaa`).
 - The Send button shall invert colours on hover.
 
+### Mobile & Tablet Viewport
+
+- The input area shall remain visible within the viewport on tablet-sized screens in both portrait (768×1024) and landscape (1024×768) orientations.
+- The layout shall use a dynamic viewport height (`100dvh`) so that the browser chrome (address bar, navigation bar) on iOS Safari is accounted for and the input area is never pushed below the fold.
+- The `html` element shall use `-webkit-fill-available` height so that older versions of iOS Safari also constrain the layout correctly.
+- The chat window shall have `min-height: 0` so it can shrink within the flex column without forcing the input area off-screen.
+- The chat window shall use `-webkit-overflow-scrolling: touch` for smooth momentum scrolling on iOS.
+
 ---
 
 ## Technical Requirements
@@ -172,7 +180,7 @@ npm test
 
 | Group | Tests | Description |
 |---|---|---|
-| Layout & static content | 6 | Page title, header text and subtitle, chat window, input field, Send button |
+| Layout & static content | 8 | Page title, header text and subtitle, chat window, input field, Send button, input area within viewport in portrait and landscape tablet sizes |
 | Initialization | 4 | Opening greeting fires on load, correct text, ELIZA speaker label, input focused |
 | Input & UI interaction | 8 | Enter key, Send button, input cleared after submit, user message text/label, multi-turn replies, empty and whitespace-only input rejected |
 | Pattern matching | 21 | Every keyword category: greetings, `I need/am/feel/think/want/can't/wish`, `because`, `sorry`, `mother`, `father`, `dream`, `computer`, `remember`, `yes`, `no`, `always`, `?`, `if`, `my` |

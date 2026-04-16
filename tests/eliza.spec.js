@@ -85,6 +85,28 @@ test.describe("Layout & static content", () => {
     await expect(btn).toBeVisible();
     await expect(btn).toHaveText("SEND");
   });
+
+  test("input area is within viewport in portrait tablet size (768x1024)", async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 1024 });
+    await page.goto(PAGE_URL);
+    const inputArea = page.locator("#input-area");
+    await expect(inputArea).toBeVisible();
+    const box = await inputArea.boundingBox();
+    expect(box).not.toBeNull();
+    // Bottom edge of input area must be within the viewport height
+    expect(box.y + box.height).toBeLessThanOrEqual(1024);
+  });
+
+  test("input area is within viewport in landscape tablet size (1024x768)", async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await page.goto(PAGE_URL);
+    const inputArea = page.locator("#input-area");
+    await expect(inputArea).toBeVisible();
+    const box = await inputArea.boundingBox();
+    expect(box).not.toBeNull();
+    // Bottom edge of input area must be within the viewport height
+    expect(box.y + box.height).toBeLessThanOrEqual(768);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
