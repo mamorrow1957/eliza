@@ -153,12 +153,57 @@ The following substitutions shall be applied word-by-word to captured groups bef
 
 ---
 
+## Testing
+
+### Framework
+
+Tests are written with [Playwright](https://playwright.dev/) and run against the `index.html` file directly via a `file://` URL — no dev server required. The test runner is Chromium headless.
+
+### Running Tests
+
+```bash
+npm install
+npm test
+```
+
+### Test Suite Overview
+
+59 tests are organised into 7 groups:
+
+| Group | Tests | Description |
+|---|---|---|
+| Layout & static content | 6 | Page title, header text and subtitle, chat window, input field, Send button |
+| Initialization | 4 | Opening greeting fires on load, correct text, ELIZA speaker label, input focused |
+| Input & UI interaction | 8 | Enter key, Send button, input cleared after submit, user message text/label, multi-turn replies, empty and whitespace-only input rejected |
+| Pattern matching | 21 | Every keyword category: greetings, `I need/am/feel/think/want/can't/wish`, `because`, `sorry`, `mother`, `father`, `dream`, `computer`, `remember`, `yes`, `no`, `always`, `?`, `if`, `my` |
+| Synonym normalisation | 4 | `recollect→remember`, `machine→computer`, `maybe→perhaps`, `dreamt→dream` |
+| Pronoun reflection | 3 | `I→you`, `my→your`, `me→you` in captured phrases |
+| Response cycling | 3 | Different reply on repeated input, full 4-response cycle wrap, fallback list cycling |
+| Edge cases | 10 | `<script>` XSS, HTML `<b>` injection, 500-character input, all-caps input, punctuation-only input, rapid-fire messages, numeric input, ampersand escaping |
+
+### Edge Case Coverage
+
+- **XSS prevention** — `<script>` tags in user input are HTML-escaped; no script executes and no global is set.
+- **HTML injection** — `<b>` tags appear as literal text; no DOM elements are created inside message bubbles.
+- **Long input** — inputs exceeding 500 characters are handled gracefully and produce a response.
+- **Case insensitivity** — all-caps input matches the same rules as lowercase.
+- **Empty / whitespace input** — submitting blank input adds no messages to the chat.
+- **Rapid-fire messages** — three messages sent in immediate succession each receive a response.
+- **Response cycling** — repeated identical input cycles through the rule's response list and wraps back to the first after exhaustion.
+- **Fallback cycling** — unrecognised input advances through the fallback list rather than repeating.
+
+---
+
 ## File Structure
 
 ```
 eliza/
-└── index.html      # Complete application (HTML + CSS + JS)
-└── eliza-spec.md   # This document
+├── index.html          # Complete application (HTML + CSS + JS)
+├── eliza-spec.md       # This document
+├── playwright.config.js
+├── package.json
+└── tests/
+    └── eliza.spec.js   # Playwright test suite (59 tests)
 ```
 
 ---
