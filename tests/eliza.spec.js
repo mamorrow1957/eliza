@@ -457,14 +457,12 @@ test.describe("Synonym normalisation", () => {
     expect(valid).toContain(reply);
   });
 
-  test("'i'm' matches the /i'?m/ pattern rule directly", async ({ page }) => {
+  test("'i'm' is normalised to 'i am' and fires the 'I am' rule", async ({ page }) => {
     await loadPage(page);
     const reply = await chat(page, "i'm feeling lost");
-    // The synonym map has "i'm" → "i am" but the replacement regex (\b\w+\b)
-    // cannot match across an apostrophe, so that synonym entry is never reached.
-    // Instead the /i'?m (.*)/ pattern (weight 90) fires directly.
-    // First response (counter=0): "How does being $1 make you feel?"
-    expect(reply).toBe("How does being feeling lost make you feel?");
+    // i'm → i am (synonym), then /i am (.*)/ fires (weight 90)
+    // captured "feeling lost" has no pronouns to reflect
+    expect(reply).toBe("Did you come to me because you are feeling lost?");
   });
 });
 

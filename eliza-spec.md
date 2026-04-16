@@ -184,7 +184,7 @@ npm test
 | Initialization | 4 | Opening greeting fires on load, correct text, ELIZA speaker label, input focused |
 | Input & UI interaction | 10 | Enter key, Send button, input cleared after submit, user message text/label, multi-turn replies, empty and whitespace-only input rejected, chat window auto-scrolls to bottom, double-click Send guard |
 | Pattern matching | 22 | Every keyword category: greetings, `I need/am/feel/think/want/can't/wish`, `because`, `sorry`, `mother`, `father`, `dream`, `computer`, `remember`, `yes`, `no`, `always`, `?`, `if`, `my`, higher-weight rule wins on multi-rule match |
-| Synonym normalisation | 5 | `recollect→remember`, `machine→computer`, `maybe→perhaps`, `dreamt→dream`, `i'm` matches `/i'?m/` pattern directly |
+| Synonym normalisation | 5 | `recollect→remember`, `machine→computer`, `maybe→perhaps`, `dreamt→dream`, `i'm→i am` fires the `I am` rule |
 | Pronoun reflection | 3 | `I→you`, `my→your`, `me→you` in captured phrases |
 | Response cycling | 3 | Different reply on repeated input, full 4-response cycle wrap, fallback list cycling |
 | Edge cases | 10 | `<script>` XSS, HTML `<b>` injection, 500-character input, all-caps input, punctuation-only input, rapid-fire messages, numeric input, ampersand escaping |

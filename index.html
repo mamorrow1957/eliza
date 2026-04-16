@@ -604,7 +604,7 @@
     let text = input.trim().toLowerCase();
 
     // Expand contractions / synonyms
-    text = text.replace(/\b(\w+)\b/g, w => SYNONYMS[w] || w);
+    text = text.replace(/\b\w+(?:'\w+)?\b/g, w => SYNONYMS[w] || w);
 
     // Sort rules by weight (highest first), try each
     const sorted = [...RULES].sort((a, b) => b.weight - a.weight);
