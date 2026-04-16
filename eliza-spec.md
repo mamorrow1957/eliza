@@ -154,9 +154,10 @@ The following substitutions shall be applied word-by-word to captured groups bef
 
 ## Technical Requirements
 
-- Implemented as a single self-contained HTML file (`index.html`) with no external dependencies.
+- Implemented as a single self-contained HTML file (`index.html`) with no runtime dependencies.
 - All logic (pattern matching, synonym normalisation, pronoun reflection, UI) shall be implemented in vanilla JavaScript within the file.
-- No server-side code, build tools, or package manager required.
+- The application requires no server-side code, build tools, or package manager to run — open `index.html` directly in any browser.
+- Running the test suite requires Node.js and npm (`npm install && npm test`).
 - Compatible with all modern browsers (Chrome, Firefox, Safari, Edge).
 
 ---
