@@ -176,7 +176,7 @@ npm test
 
 ### Test Suite Overview
 
-59 tests are organised into 7 groups:
+61 tests are organised into 7 groups:
 
 | Group | Tests | Description |
 |---|---|---|
@@ -211,7 +211,7 @@ eliza/
 ├── playwright.config.js
 ├── package.json
 └── tests/
-    └── eliza.spec.js   # Playwright test suite (59 tests)
+    └── eliza.spec.js   # Playwright test suite (61 tests)
 ```
 
 ---
