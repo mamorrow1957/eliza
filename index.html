@@ -7,16 +7,30 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* Prevent iOS Safari from scrolling the page itself */
+    html {
+      height: -webkit-fill-available;
+    }
+
     body {
       background: #0a0a0a;
       color: #33ff33;
       font-family: "Courier New", Courier, monospace;
       font-size: 15px;
+      /* 100vh is broken on iOS Safari (ignores browser chrome).
+         Fall back chain: fill-available → dvh (dynamic, tracks chrome) */
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      min-height: 100dvh;
       height: 100vh;
+      height: -webkit-fill-available;
+      height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 20px;
+      /* Prevent the page from scrolling behind the fixed layout */
+      overflow: hidden;
     }
 
     header {
@@ -40,9 +54,11 @@
 
     #chat-window {
       flex: 1;
+      min-height: 0; /* allow flex child to shrink below its content size on iOS */
       width: 100%;
       max-width: 700px;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch; /* smooth momentum scrolling on iOS */
       padding: 20px 10px;
       display: flex;
       flex-direction: column;
