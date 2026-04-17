@@ -647,13 +647,15 @@
   function addMessage(speaker, text, cls) {
     const div = document.createElement("div");
     div.className = `message ${cls}`;
-    div.innerHTML = `<span class="speaker">${speaker}</span><div class="text">${escapeHtml(text)}</div>`;
+    const spk = document.createElement("span");
+    spk.className = "speaker";
+    spk.textContent = speaker;
+    const txt = document.createElement("div");
+    txt.className = "text";
+    txt.textContent = text;
+    div.append(spk, txt);
     chatWindow.appendChild(div);
     chatWindow.scrollTop = chatWindow.scrollHeight;
-  }
-
-  function escapeHtml(s) {
-    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   }
 
   function handleSend() {
