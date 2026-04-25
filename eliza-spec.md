@@ -154,8 +154,8 @@ The following substitutions shall be applied word-by-word to captured groups bef
 
 ## Technical Requirements
 
-- Implemented as a single self-contained HTML file (`index.html`) with no runtime dependencies.
-- All logic (pattern matching, synonym normalisation, pronoun reflection, UI) shall be implemented in vanilla JavaScript within the file.
+- Implemented as two static files (`index.html` and `eliza.js`) with no runtime dependencies.
+- All logic (pattern matching, synonym normalisation, pronoun reflection, UI) shall be implemented in vanilla JavaScript in `eliza.js`, loaded as an external script by `index.html`.
 - The application requires no server-side code, build tools, or package manager to run — open `index.html` directly in any browser.
 - Running the test suite requires Node.js and npm (`npm install && npm test`).
 - Compatible with all modern browsers (Chrome, Firefox, Safari, Edge).
@@ -217,7 +217,8 @@ npm test
 
 ```
 eliza/
-├── index.html          # Complete application (HTML + CSS + JS)
+├── index.html          # Application shell (HTML + CSS)
+├── eliza.js            # ELIZA engine and UI logic
 ├── eliza-spec.md       # This document
 ├── playwright.config.js
 ├── package.json
