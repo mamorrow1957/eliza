@@ -175,6 +175,10 @@ npm install
 npm test
 ```
 
+### Continuous Integration
+
+Tests run automatically on GitHub Actions on every push to `main` or `dev`, and on every pull request targeting `main`. The workflow installs Chromium, runs the full test suite, and uploads the HTML report as a downloadable artifact (14-day retention).
+
 ### Test Suite Overview
 
 73 tests are organised into 9 groups:
@@ -217,13 +221,16 @@ npm test
 
 ```
 eliza/
-├── index.html          # Application shell (HTML + CSS)
-├── eliza.js            # ELIZA engine and UI logic
-├── eliza-spec.md       # This document
+├── index.html               # Application shell (HTML + CSS)
+├── eliza.js                 # ELIZA engine and UI logic
+├── eliza-spec.md            # This document
 ├── playwright.config.js
 ├── package.json
+├── .github/
+│   └── workflows/
+│       └── ci.yml           # GitHub Actions CI pipeline
 └── tests/
-    └── eliza.spec.js   # Playwright test suite (73 tests)
+    └── eliza.spec.js        # Playwright test suite (73 tests)
 ```
 
 ---
