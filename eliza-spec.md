@@ -179,6 +179,10 @@ npm test
 
 Tests run automatically on GitHub Actions on every push to `main` or `dev`, and on every pull request targeting `main`. The workflow installs Chromium, runs the full test suite, and uploads the HTML report as a downloadable artifact (14-day retention).
 
+### Deployment
+
+A deploy job runs automatically after tests pass on `main`. It runs on a self-hosted GitHub Actions runner (`eliza-local`) installed on the `eliza.local` server. The job pulls the latest code and runs `scripts/deploy.sh`, which backs up `/var/www/html` and rsyncs the repo into it (excluding dev-only files such as tests, node_modules, and config files).
+
 ### Test Suite Overview
 
 73 tests are organised into 9 groups:
@@ -226,9 +230,11 @@ eliza/
 ├── eliza-spec.md            # This document
 ├── playwright.config.js
 ├── package.json
+├── scripts/
+│   └── deploy.sh            # Deployment script (rsync to /var/www/html)
 ├── .github/
 │   └── workflows/
-│       └── ci.yml           # GitHub Actions CI pipeline
+│       └── ci.yml           # GitHub Actions CI/CD pipeline
 └── tests/
     └── eliza.spec.js        # Playwright test suite (73 tests)
 ```
