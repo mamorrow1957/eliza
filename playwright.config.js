@@ -6,7 +6,7 @@ module.exports = defineConfig({
   timeout: 10_000,
   expect: { timeout: 5_000 },
   fullyParallel: true,
-  reporter: "list",
+  reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: "file://" + require("path").resolve(__dirname, "index.html"),
     headless: true,
