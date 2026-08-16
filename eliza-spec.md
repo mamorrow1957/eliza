@@ -177,19 +177,19 @@ npm test
 
 ### Continuous Integration
 
-Tests run automatically on GitHub Actions on every push to `main` or `dev`, and on every pull request targeting `main`. The workflow installs Chromium, runs the full test suite, and uploads the HTML report as a downloadable artifact (14-day retention).
+Tests run automatically on GitLab CI on every push to `main` or `dev`, and on every merge request targeting `main`. The pipeline installs Chromium inside a `node:20` Docker container, runs the full test suite, and uploads the HTML report as a downloadable artifact (14-day retention).
 
 ### Deployment
 
-A deploy job runs automatically after tests pass on `main`. It runs on a self-hosted GitHub Actions runner (`eliza-local`) installed on the `eliza.local` server. The job pulls the latest code and runs `scripts/deploy.sh`, which backs up `/var/www/html` and rsyncs the repo into it (excluding dev-only files such as tests, node_modules, and config files).
+A deploy job runs automatically after tests pass on `main`. It runs on a self-hosted GitLab shell runner installed on the `eliza.local` server. The job pulls the latest code and runs `scripts/deploy.sh`, which backs up `/var/www/html` and rsyncs the repo into it (excluding dev-only files such as tests, node_modules, and config files).
 
 ### Test Suite Overview
 
-73 tests are organised into 9 groups:
+75 tests are organised into 9 groups:
 
 | Group | Tests | Description |
 |---|---|---|
-| Layout & static content | 8 | Page title, header text and subtitle, chat window, input field, Send button, input area within viewport in portrait and landscape tablet sizes |
+| Layout & static content | 10 | Page title, header text and subtitle, chat window, input field, Send button, input area within viewport in portrait and landscape tablet and mobile sizes |
 | Initialization | 4 | Opening greeting fires on load, correct text, ELIZA speaker label, input focused |
 | Input & UI interaction | 10 | Enter key, Send button, input cleared after submit, user message text/label, multi-turn replies, empty and whitespace-only input rejected, chat window auto-scrolls to bottom, double-click Send guard |
 | Pattern matching | 22 | Every keyword category: greetings, `I need/am/feel/think/want/can't/wish`, `because`, `sorry`, `mother`, `father`, `dream`, `computer`, `remember`, `yes`, `no`, `always`, `?`, `if`, `my`, higher-weight rule wins on multi-rule match |
@@ -228,15 +228,14 @@ eliza/
 ├── index.html               # Application shell (HTML + CSS)
 ├── eliza.js                 # ELIZA engine and UI logic
 ├── eliza-spec.md            # This document
+├── LICENSE
 ├── playwright.config.js
 ├── package.json
 ├── scripts/
 │   └── deploy.sh            # Deployment script (rsync to /var/www/html)
-├── .github/
-│   └── workflows/
-│       └── ci.yml           # GitHub Actions CI/CD pipeline
+├── .gitlab-ci.yml           # GitLab CI/CD pipeline
 └── tests/
-    └── eliza.spec.js        # Playwright test suite (73 tests)
+    └── eliza.spec.js        # Playwright test suite (75 tests)
 ```
 
 ---
