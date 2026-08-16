@@ -144,7 +144,7 @@ The following substitutions shall be applied word-by-word to captured groups bef
 
 ### Mobile & Tablet Viewport
 
-- The input area shall remain visible within the viewport on tablet-sized screens in both portrait (768×1024) and landscape (1024×768) orientations.
+- The input area shall remain visible within the viewport on mobile-sized screens in both portrait (375×812) and landscape (812×375) orientations, and on tablet-sized screens in both portrait (768×1024) and landscape (1024×768) orientations.
 - The layout shall use a dynamic viewport height (`100dvh`) so that the browser chrome (address bar, navigation bar) on iOS Safari is accounted for and the input area is never pushed below the fold.
 - The `html` element shall use `-webkit-fill-available` height so that older versions of iOS Safari also constrain the layout correctly.
 - The chat window shall have `min-height: 0` so it can shrink within the flex column without forcing the input area off-screen.

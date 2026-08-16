@@ -1,8 +1,7 @@
 {
   "name": "eliza",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Browser-based implementation of the ELIZA DOCTOR script",
   "scripts": {
     "test": "playwright test"
   },
@@ -11,7 +10,7 @@
     "url": "git+https://gitlab.morroweb.com/michael/eliza.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Michael Morrow",
   "license": "ISC",
   "bugs": {
     "url": "https://gitlab.morroweb.com/michael/eliza/-/issues"
