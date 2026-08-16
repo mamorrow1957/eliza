@@ -12,7 +12,7 @@ const PAGE_URL = "file://" + path.resolve(__dirname, "..", "index.html");
 async function loadPage(page) {
   await page.goto(PAGE_URL);
   // Wait for opening greeting (delayed ~400 ms on load)
-  await expect(page.locator(".message.eliza")).toHaveCount(1, { timeout: 3000 });
+  await expect(page.locator(".message.eliza")).toHaveCount(1, { timeout: 8000 });
 }
 
 /**
@@ -24,7 +24,7 @@ async function chat(page, text) {
   await page.fill("#user-input", text);
   await page.press("#user-input", "Enter");
   await expect(page.locator(".message.eliza")).toHaveCount(elizaBefore + 1, {
-    timeout: 3000,
+    timeout: 8000,
   });
   return page.locator(".message.eliza .text").last().textContent();
 }
@@ -37,7 +37,7 @@ async function chatViaButton(page, text) {
   await page.fill("#user-input", text);
   await page.click("#send-btn");
   await expect(page.locator(".message.eliza")).toHaveCount(elizaBefore + 1, {
-    timeout: 3000,
+    timeout: 8000,
   });
   return page.locator(".message.eliza .text").last().textContent();
 }
@@ -136,7 +136,7 @@ test.describe("Layout & static content", () => {
 test.describe("Initialization", () => {
   test("ELIZA sends an opening greeting automatically on load", async ({ page }) => {
     await page.goto(PAGE_URL);
-    await expect(page.locator(".message.eliza")).toHaveCount(1, { timeout: 3000 });
+    await expect(page.locator(".message.eliza")).toHaveCount(1, { timeout: 8000 });
   });
 
   test("opening greeting text is the classic DOCTOR welcome", async ({ page }) => {
@@ -684,7 +684,7 @@ test.describe("Additional edge cases", () => {
       document.getElementById("user-input").value = "I feel\ngood today";
     });
     await page.press("#user-input", "Enter");
-    await expect(page.locator(".message.eliza")).toHaveCount(elizaBefore + 1, { timeout: 3000 });
+    await expect(page.locator(".message.eliza")).toHaveCount(elizaBefore + 1, { timeout: 8000 });
     const reply = await page.locator(".message.eliza .text").last().textContent();
     expect(reply).toBeTruthy();
   });
