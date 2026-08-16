@@ -1,0 +1,25 @@
+ISC License
+
+Copyright (c) 2026 Michael Morrow
+
+This software is a browser-based reimplementation of ELIZA, originally
+created by Joseph Weizenbaum at the MIT Artificial Intelligence Laboratory
+and published in:
+
+  Weizenbaum, J. (1966). ELIZA — A computer program for the study of natural
+  language communication between man and machine. Communications of the ACM,
+  9(1), 36–45.
+
+The original program and the DOCTOR script are in the public domain.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
