@@ -107,6 +107,26 @@ test.describe("Layout & static content", () => {
     // Bottom edge of input area must be within the viewport height
     expect(box.y + box.height).toBeLessThanOrEqual(768);
   });
+
+  test("input area is within viewport in portrait mobile size (375x812)", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto(PAGE_URL);
+    const inputArea = page.locator("#input-area");
+    await expect(inputArea).toBeVisible();
+    const box = await inputArea.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box.y + box.height).toBeLessThanOrEqual(812);
+  });
+
+  test("input area is within viewport in landscape mobile size (812x375)", async ({ page }) => {
+    await page.setViewportSize({ width: 812, height: 375 });
+    await page.goto(PAGE_URL);
+    const inputArea = page.locator("#input-area");
+    await expect(inputArea).toBeVisible();
+    const box = await inputArea.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box.y + box.height).toBeLessThanOrEqual(375);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
