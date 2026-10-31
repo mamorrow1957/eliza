@@ -8,25 +8,28 @@ ELIZA is a pure static web app — one HTML file and one JavaScript file, no bui
 
 The retro green-on-black terminal aesthetic is intentional.
 
+A small footer under the input shows when the code last changed (for example `Last updated Aug 16, 2026, 1:26 PM EDT`, in Eastern time). It is filled in by the deploy script and stays hidden when you open the page locally.
+
 ## Project layout
 
 ```
-index.html          — UI shell (layout, styles, input handling)
-eliza.js            — ELIZA engine (pattern matching, DOCTOR script rules)
+index.html          — UI shell (layout, styles, input handling, last-updated footer)
+eliza.js            — ELIZA engine (pattern matching, DOCTOR script rules) and footer rendering
+last-updated.js     — written by deploy.sh on the server only (not in git); sets the footer date
 tests/
-  eliza.spec.js     — Playwright end-to-end tests
+  eliza.spec.js     — Playwright end-to-end tests (83 tests)
 scripts/
-  deploy.sh         — Rsync to /var/www/html on the host
+  deploy.sh         — Rsync to /var/www/html on the host, then writes last-updated.js
 .gitlab-ci.yml      — CI: run tests (Docker/node:20), deploy on main
 ```
 
 ## Development
 
-No build step required. Open `index.html` directly in a browser.
+No build step required. Open `index.html` directly in a browser. The footer stays hidden locally because `last-updated.js` only exists on the server.
 
 ## Testing
 
-Tests use [Playwright](https://playwright.dev/) and run against the local `index.html` via a `file://` URL.
+Tests use [Playwright](https://playwright.dev/) and run against the local `index.html` via a `file://` URL. The footer tests inject `window.ELIZA_LAST_UPDATED` themselves, because `last-updated.js` does not exist locally.
 
 ```bash
 npm ci
@@ -36,7 +39,7 @@ npm test
 
 ## Deployment
 
-The `deploy` CI job runs automatically on pushes to `main`. It pulls the latest code on the server and rsyncs the static files to `/var/www/html`.
+The `deploy` CI job runs automatically on pushes to `main`. It pulls the latest code on the server, rsyncs the static files to `/var/www/html`, and writes `last-updated.js` with the commit time of the deployed code (shown in the page footer).
 
 To deploy manually from the server:
 

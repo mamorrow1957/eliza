@@ -718,3 +718,101 @@ test.describe("Additional edge cases", () => {
     expect((reply || "").length).toBeGreaterThan(0);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10. Last-updated footer
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe("Last-updated footer", () => {
+  // In production, last-updated.js (written by scripts/deploy.sh) sets
+  // window.ELIZA_LAST_UPDATED. Locally that file is absent, so tests inject the value.
+  async function loadWithStamp(page, value) {
+    await page.addInitScript((v) => {
+      window.ELIZA_LAST_UPDATED = v;
+    }, value);
+    await loadPage(page);
+  }
+
+  test("footer is hidden when there is no timestamp", async ({ page }) => {
+    await loadPage(page);
+    const footer = page.locator("#last-updated");
+    await expect(footer).toHaveText("");
+    await expect(footer).toBeHidden();
+  });
+
+  test("footer shows the last-updated date and time in Eastern time (summer, EDT)", async ({ page }) => {
+    await loadWithStamp(page, "2026-08-16T17:26:00Z");
+    await expect(page.locator("#last-updated")).toHaveText(
+      /^Last updated Aug 16, 2026, 1:26\sPM EDT$/
+    );
+  });
+
+  test("footer shows Eastern standard time in winter (EST)", async ({ page }) => {
+    await loadWithStamp(page, "2026-12-25T15:05:00Z");
+    await expect(page.locator("#last-updated")).toHaveText(
+      /^Last updated Dec 25, 2026, 10:05\sAM EST$/
+    );
+  });
+
+  test("footer accepts an ISO timestamp with a UTC offset", async ({ page }) => {
+    await loadWithStamp(page, "2026-08-16T13:26:00-04:00");
+    await expect(page.locator("#last-updated")).toHaveText(
+      /^Last updated Aug 16, 2026, 1:26\sPM EDT$/
+    );
+  });
+
+  test("an invalid timestamp leaves the footer empty and hidden", async ({ page }) => {
+    await loadWithStamp(page, "not a date");
+    const footer = page.locator("#last-updated");
+    await expect(footer).toHaveText("");
+    await expect(footer).toBeHidden();
+  });
+
+  test("footer is centred, in small type, below the input area", async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await loadWithStamp(page, "2026-08-16T17:26:00Z");
+    const footer = page.locator("#last-updated");
+    await expect(footer).toBeVisible();
+
+    const box = await footer.boundingBox();
+    const inputBox = await page.locator("#input-area").boundingBox();
+    expect(box).not.toBeNull();
+    expect(inputBox).not.toBeNull();
+    // Horizontally centred in the viewport (within 2 px)
+    expect(Math.abs(box.x + box.width / 2 - 1024 / 2)).toBeLessThanOrEqual(2);
+    // Sits below the input area, fully inside the viewport
+    expect(box.y).toBeGreaterThanOrEqual(inputBox.y + inputBox.height - 1);
+    expect(box.y + box.height).toBeLessThanOrEqual(768);
+
+    // Smaller than the input text and centred text alignment
+    const sizes = await page.evaluate(() => ({
+      footer: parseFloat(getComputedStyle(document.getElementById("last-updated")).fontSize),
+      input: parseFloat(getComputedStyle(document.getElementById("user-input")).fontSize),
+      align: getComputedStyle(document.getElementById("last-updated")).textAlign,
+    }));
+    expect(sizes.footer).toBeLessThan(sizes.input);
+    expect(sizes.align).toBe("center");
+  });
+
+  test("footer does not overlap the input or SEND button on a phone-sized screen (375x812)", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await loadWithStamp(page, "2026-08-16T17:26:00Z");
+    const footerBox = await page.locator("#last-updated").boundingBox();
+    const sendBox = await page.locator("#send-btn").boundingBox();
+    const inputBox = await page.locator("#user-input").boundingBox();
+    expect(footerBox).not.toBeNull();
+    expect(footerBox.y).toBeGreaterThanOrEqual(sendBox.y + sendBox.height);
+    expect(footerBox.y).toBeGreaterThanOrEqual(inputBox.y + inputBox.height);
+    expect(footerBox.y + footerBox.height).toBeLessThanOrEqual(812);
+    // Text must not be cut off horizontally
+    expect(footerBox.x).toBeGreaterThanOrEqual(0);
+    expect(footerBox.x + footerBox.width).toBeLessThanOrEqual(375);
+  });
+
+  test("chatting still works with the footer shown", async ({ page }) => {
+    await loadWithStamp(page, "2026-08-16T17:26:00Z");
+    const reply = await chat(page, "I am feeling sad");
+    expect(reply.length).toBeGreaterThan(0);
+    await expect(page.locator("#last-updated")).toBeVisible();
+  });
+});

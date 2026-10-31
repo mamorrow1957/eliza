@@ -116,6 +116,7 @@ The following substitutions shall be applied word-by-word to captured groups bef
 - A fixed header displaying the program name ("ELIZA") and subtitle ("DOCTOR Script — MIT Artificial Intelligence Laboratory, 1966").
 - A scrollable chat window occupying the remaining vertical space.
 - A fixed input area at the bottom containing a text field and a send button.
+- A small footer centred below the input area reading `Last updated <date and time>` (see *Last-Updated Footer*).
 
 ### Chat Window
 
@@ -130,6 +131,13 @@ The following substitutions shall be applied word-by-word to captured groups bef
 - Pressing **Enter** or clicking the **Send** button shall submit the current input.
 - The input field shall be cleared after submission.
 - The input field shall receive focus on page load.
+
+### Last-Updated Footer
+
+- A `<footer id="last-updated">` sits centred below the input area, in small, dim type.
+- It shows when the deployed code last changed, e.g. `Last updated Aug 16, 2026, 1:26 PM EDT`, always in Eastern time (EDT in summer, EST in winter).
+- The value comes from `last-updated.js`, which `scripts/deploy.sh` writes into `/var/www/html` after the rsync. It contains `window.ELIZA_LAST_UPDATED = "<ISO 8601 commit time>"` and uses the commit time of the checked-out `HEAD` (so re-running a deploy with no code change does not move the date).
+- `last-updated.js` is not stored in git (it is in `.gitignore`). When it is missing, or the value is not a valid date, the footer is empty and hidden. Local runs and the Playwright tests therefore show no footer unless a test injects `window.ELIZA_LAST_UPDATED`.
 
 ### Response Timing
 
@@ -181,11 +189,11 @@ Tests run automatically on GitLab CI on every push to `main` or `dev`, and on ev
 
 ### Deployment
 
-A deploy job runs automatically after tests pass on `main`. It runs on a self-hosted GitLab shell runner installed on the `eliza.local` server. The job pulls the latest code and runs `scripts/deploy.sh`, which backs up `/var/www/html` and rsyncs the repo into it (excluding dev-only files such as tests, node_modules, and config files).
+A deploy job runs automatically after tests pass on `main`. It runs on a self-hosted GitLab shell runner installed on the `eliza.local` server. The job pulls the latest code and runs `scripts/deploy.sh`, which backs up `/var/www/html`, rsyncs the repo into it (excluding dev-only files such as tests, node_modules, and config files), and then writes `last-updated.js` with the commit time of the deployed code for the page footer.
 
 ### Test Suite Overview
 
-75 tests are organised into 9 groups:
+83 tests are organised into 10 groups:
 
 | Group | Tests | Description |
 |---|---|---|
@@ -198,6 +206,7 @@ A deploy job runs automatically after tests pass on `main`. It runs on a self-ho
 | Response cycling | 3 | Different reply on repeated input, full 4-response cycle wrap, fallback list cycling |
 | Edge cases | 10 | `<script>` XSS, HTML `<b>` injection, 500-character input, all-caps input, punctuation-only input, rapid-fire messages, numeric input, ampersand escaping |
 | Additional edge cases | 8 | Emoji / Unicode, `<`/`>` without tags, backtick injection, single/double quotes, embedded newlines, leading/trailing whitespace trim, `null` literal, `undefined` literal |
+| Last-updated footer | 8 | Hidden with no or invalid timestamp, Eastern time in summer (EDT) and winter (EST), ISO timestamp with UTC offset, centred small type below the input, no overlap with the input or Send button on a phone-sized screen, chatting still works |
 
 ### Edge Case Coverage
 
@@ -218,6 +227,7 @@ A deploy job runs automatically after tests pass on `main`. It runs on a self-ho
 - **Fallback cycling** — unrecognised input advances through the fallback list rather than repeating.
 - **Emoji / Unicode** — non-ASCII characters render correctly in the user bubble and produce a response.
 - **`null` / `undefined` literals** — these strings are handled without errors and produce a fallback response.
+- **Footer timestamp** — a missing or invalid `ELIZA_LAST_UPDATED` hides the footer instead of showing `Invalid Date`.
 
 ---
 
@@ -232,10 +242,10 @@ eliza/
 ├── playwright.config.js
 ├── package.json
 ├── scripts/
-│   └── deploy.sh            # Deployment script (rsync to /var/www/html)
+│   └── deploy.sh            # Deployment script (rsync to /var/www/html, writes last-updated.js)
 ├── .gitlab-ci.yml           # GitLab CI/CD pipeline
 └── tests/
-    └── eliza.spec.js        # Playwright test suite (75 tests)
+    └── eliza.spec.js        # Playwright test suite (83 tests)
 ```
 
 ---

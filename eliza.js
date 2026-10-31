@@ -497,3 +497,24 @@ window.addEventListener("load", () => {
     userInput.focus();
   }, 400);
 });
+
+// Footer: "Last updated <date and time>". The timestamp (window.ELIZA_LAST_UPDATED, an ISO 8601
+// string) comes from last-updated.js, which scripts/deploy.sh writes from the deployed commit's
+// time. Shown in Eastern time. Without a valid timestamp the footer stays empty (and hidden).
+function renderLastUpdated() {
+  const el = document.getElementById("last-updated");
+  if (!el) return;
+  const raw = window.ELIZA_LAST_UPDATED;
+  const date = raw ? new Date(raw) : null;
+  if (!date || isNaN(date.getTime())) {
+    el.textContent = "";
+    return;
+  }
+  const when = new Intl.DateTimeFormat("en-US", {
+    year: "numeric", month: "short", day: "numeric",
+    hour: "numeric", minute: "2-digit",
+    timeZone: "America/New_York", timeZoneName: "short",
+  }).format(date);
+  el.textContent = "Last updated " + when;
+}
+renderLastUpdated();
