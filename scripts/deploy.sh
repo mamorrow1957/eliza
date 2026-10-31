@@ -22,4 +22,9 @@ sudo rsync -av --delete --delete-excluded \
   --exclude='playwright.config.js' \
   --exclude='*.md' \
   /home/michael/eliza/ /var/www/html/
+
+# Footer timestamp: when the deployed code last changed (commit time of the checkout's HEAD).
+commit_time="$(git -C /home/michael/eliza log -1 --format=%cI)"
+echo "Writing last-updated.js (${commit_time})..."
+printf 'window.ELIZA_LAST_UPDATED = "%s";\n' "${commit_time}" | sudo tee /var/www/html/last-updated.js >/dev/null
 echo "Done."

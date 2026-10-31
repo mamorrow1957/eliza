@@ -137,6 +137,18 @@
       color: #0a0a0a;
     }
 
+    /* Footer: when the code last changed (filled in by eliza.js from last-updated.js) */
+    #last-updated {
+      width: 100%;
+      max-width: 700px;
+      text-align: center;
+      font-size: 0.7em;
+      color: #1a6b1a;
+      letter-spacing: 0.05em;
+      padding-bottom: 4px;
+    }
+    #last-updated:empty { display: none; }
+
     .cursor {
       display: inline-block;
       width: 9px;
@@ -163,6 +175,10 @@
     <button id="send-btn">SEND</button>
   </div>
 
+  <footer id="last-updated"></footer>
+
+  <!-- last-updated.js is written by scripts/deploy.sh; it is absent in local runs and the footer stays hidden -->
+  <script src="last-updated.js"></script>
   <script src="eliza.js"></script>
 </body>
 </html>
