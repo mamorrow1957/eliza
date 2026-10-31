@@ -189,7 +189,7 @@ Tests run automatically on GitLab CI on every push to `main` or `dev`, and on ev
 
 ### Deployment
 
-A deploy job runs automatically after tests pass on `main`. It runs on a self-hosted GitLab shell runner installed on the `eliza.local` server. The job pulls the latest code and runs `scripts/deploy.sh`, which backs up `/var/www/html`, rsyncs the repo into it (excluding dev-only files such as tests, node_modules, and config files), then writes `last-updated.js` with the commit time of the deployed code for the page footer, and finally stamps the commit into the script URLs of the deployed `index.html` (`eliza.js?v=<commit>`, `last-updated.js?v=<commit>`) so Cloudflare and browsers fetch fresh copies after every deploy. The server's nginx also sends `Cache-Control: no-cache` for `.js` and `.html` files (server configuration in `/etc/nginx/sites-available/default`, not stored in this repository). The site is served through Cloudflare, which caches static files and tells browsers to keep them for up to 4 hours; if a change still looks missing, hard-reload the page and, if needed, purge the file in the Cloudflare dashboard (Caching → Configuration → Custom Purge).
+A deploy job runs automatically after tests pass on `main`. It runs on a self-hosted GitLab shell runner installed on the `eliza.local` server. The job pulls the latest code and runs `scripts/deploy.sh`, which backs up `/var/www/html` (to `/var/www/html.backup.<date>_<time>`; only the 3 most recent backups are kept and older ones are deleted), rsyncs the repo into it (excluding dev-only files such as tests, node_modules, and config files), then writes `last-updated.js` with the commit time of the deployed code for the page footer, and finally stamps the commit into the script URLs of the deployed `index.html` (`eliza.js?v=<commit>`, `last-updated.js?v=<commit>`) so Cloudflare and browsers fetch fresh copies after every deploy. The server's nginx also sends `Cache-Control: no-cache` for `.js` and `.html` files (server configuration in `/etc/nginx/sites-available/default`, not stored in this repository). The site is served through Cloudflare, which caches static files and tells browsers to keep them for up to 4 hours; if a change still looks missing, hard-reload the page and, if needed, purge the file in the Cloudflare dashboard (Caching → Configuration → Custom Purge).
 
 ### Test Suite Overview
 
@@ -242,7 +242,7 @@ eliza/
 ├── playwright.config.js
 ├── package.json
 ├── scripts/
-│   └── deploy.sh            # Deployment script (rsync to /var/www/html, writes last-updated.js)
+│   └── deploy.sh            # Deployment script (backup, rsync to /var/www/html, last-updated.js, version stamp)
 ├── .gitlab-ci.yml           # GitLab CI/CD pipeline
 └── tests/
     └── eliza.spec.js        # Playwright test suite (84 tests)

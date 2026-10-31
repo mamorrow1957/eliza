@@ -19,7 +19,7 @@ last-updated.js     — written by deploy.sh on the server only (not in git); se
 tests/
   eliza.spec.js     — Playwright end-to-end tests (84 tests)
 scripts/
-  deploy.sh         — Rsync to /var/www/html on the host, writes last-updated.js, then stamps ?v=<commit> into the deployed script URLs
+  deploy.sh         — Backs up /var/www/html (keeps the newest 3), rsyncs to it, writes last-updated.js, then stamps ?v=<commit> into the deployed script URLs
 .gitlab-ci.yml      — CI: run tests (Docker/node:20), deploy on main
 ```
 
@@ -39,7 +39,7 @@ npm test
 
 ## Deployment
 
-The `deploy` CI job runs automatically on pushes to `main`. It pulls the latest code on the server, rsyncs the static files to `/var/www/html`, writes `last-updated.js` with the commit time of the deployed code (shown in the page footer), and stamps the commit into the script URLs of the deployed page (`eliza.js?v=<commit>`) so caches never serve an old script. The server's nginx also sends `Cache-Control: no-cache` for `.js` and `.html` files; that setting lives on the server, not in this repo.
+The `deploy` CI job runs automatically on pushes to `main`. It pulls the latest code on the server, backs up the current `/var/www/html` to `/var/www/html.backup.<date>_<time>` (only the 3 most recent backups are kept; older ones are deleted), rsyncs the static files to `/var/www/html`, writes `last-updated.js` with the commit time of the deployed code (shown in the page footer), and stamps the commit into the script URLs of the deployed page (`eliza.js?v=<commit>`) so caches never serve an old script. The server's nginx also sends `Cache-Control: no-cache` for `.js` and `.html` files; that setting lives on the server, not in this repo.
 
 ### Caching (Cloudflare)
 

@@ -6,6 +6,17 @@ if sudo test -d /var/www/html; then
   echo "Backing up /var/www/html to ${backup}..."
   sudo cp -a /var/www/html "${backup}"
   echo "Backup complete."
+
+  # Keep only the 3 most recent backups (names sort by date and time); delete the older ones.
+  keep=3
+  old_backups="$(ls -1d /var/www/html.backup.[0-9]*_[0-9]* 2>/dev/null | sort | head -n "-${keep}" || true)"
+  if [ -n "${old_backups}" ]; then
+    echo "Removing backups older than the newest ${keep}:"
+    while IFS= read -r old; do
+      echo "  ${old}"
+      sudo rm -rf -- "${old}"
+    done <<< "${old_backups}"
+  fi
 fi
 
 echo "Copying /home/michael/eliza to /var/www/html..."
