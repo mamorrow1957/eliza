@@ -189,11 +189,11 @@ Tests run automatically on GitLab CI on every push to `main` or `dev`, and on ev
 
 ### Deployment
 
-A deploy job runs automatically after tests pass on `main`. It runs on a self-hosted GitLab shell runner installed on the `eliza.local` server. The job pulls the latest code and runs `scripts/deploy.sh`, which backs up `/var/www/html`, rsyncs the repo into it (excluding dev-only files such as tests, node_modules, and config files), and then writes `last-updated.js` with the commit time of the deployed code for the page footer.
+A deploy job runs automatically after tests pass on `main`. It runs on a self-hosted GitLab shell runner installed on the `eliza.local` server. The job pulls the latest code and runs `scripts/deploy.sh`, which backs up `/var/www/html`, rsyncs the repo into it (excluding dev-only files such as tests, node_modules, and config files), then writes `last-updated.js` with the commit time of the deployed code for the page footer, and finally stamps the commit into the script URLs of the deployed `index.html` (`eliza.js?v=<commit>`, `last-updated.js?v=<commit>`) so Cloudflare and browsers fetch fresh copies after every deploy. The server's nginx also sends `Cache-Control: no-cache` for `.js` and `.html` files (server configuration in `/etc/nginx/sites-available/default`, not stored in this repository).
 
 ### Test Suite Overview
 
-83 tests are organised into 10 groups:
+84 tests are organised into 10 groups:
 
 | Group | Tests | Description |
 |---|---|---|
@@ -206,7 +206,7 @@ A deploy job runs automatically after tests pass on `main`. It runs on a self-ho
 | Response cycling | 3 | Different reply on repeated input, full 4-response cycle wrap, fallback list cycling |
 | Edge cases | 10 | `<script>` XSS, HTML `<b>` injection, 500-character input, all-caps input, punctuation-only input, rapid-fire messages, numeric input, ampersand escaping |
 | Additional edge cases | 8 | Emoji / Unicode, `<`/`>` without tags, backtick injection, single/double quotes, embedded newlines, leading/trailing whitespace trim, `null` literal, `undefined` literal |
-| Last-updated footer | 8 | Hidden with no or invalid timestamp, Eastern time in summer (EDT) and winter (EST), ISO timestamp with UTC offset, centred small type below the input, no overlap with the input or Send button on a phone-sized screen, chatting still works |
+| Last-updated footer | 9 | Hidden with no or invalid timestamp, Eastern time in summer (EDT) and winter (EST), ISO timestamp with UTC offset, centred small type below the input, no overlap with the input or Send button on a phone-sized screen, script tags keep the form deploy.sh stamps, chatting still works |
 
 ### Edge Case Coverage
 
@@ -245,7 +245,7 @@ eliza/
 │   └── deploy.sh            # Deployment script (rsync to /var/www/html, writes last-updated.js)
 ├── .gitlab-ci.yml           # GitLab CI/CD pipeline
 └── tests/
-    └── eliza.spec.js        # Playwright test suite (83 tests)
+    └── eliza.spec.js        # Playwright test suite (84 tests)
 ```
 
 ---

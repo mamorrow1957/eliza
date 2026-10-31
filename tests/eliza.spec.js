@@ -809,6 +809,17 @@ test.describe("Last-updated footer", () => {
     expect(footerBox.x + footerBox.width).toBeLessThanOrEqual(375);
   });
 
+  test("script tags keep the exact form that scripts/deploy.sh stamps with a version", async () => {
+    const fs = require("fs");
+    const html = fs.readFileSync(path.resolve(__dirname, "..", "index.html"), "utf8");
+    const deploy = fs.readFileSync(path.resolve(__dirname, "..", "scripts", "deploy.sh"), "utf8");
+    // deploy.sh rewrites these two tags for cache busting; if the markup changes, the stamp silently stops working
+    expect(html).toContain('<script src="eliza.js"></script>');
+    expect(html).toContain('<script src="last-updated.js"></script>');
+    expect(deploy).toContain("eliza.js?v=");
+    expect(deploy).toContain("last-updated.js?v=");
+  });
+
   test("chatting still works with the footer shown", async ({ page }) => {
     await loadWithStamp(page, "2026-08-16T17:26:00Z");
     const reply = await chat(page, "I am feeling sad");

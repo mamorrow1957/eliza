@@ -17,7 +17,7 @@ index.html          — UI shell (layout, styles, input handling, last-updated f
 eliza.js            — ELIZA engine (pattern matching, DOCTOR script rules) and footer rendering
 last-updated.js     — written by deploy.sh on the server only (not in git); sets the footer date
 tests/
-  eliza.spec.js     — Playwright end-to-end tests (83 tests)
+  eliza.spec.js     — Playwright end-to-end tests (84 tests)
 scripts/
   deploy.sh         — Rsync to /var/www/html on the host, then writes last-updated.js
 .gitlab-ci.yml      — CI: run tests (Docker/node:20), deploy on main
@@ -39,7 +39,7 @@ npm test
 
 ## Deployment
 
-The `deploy` CI job runs automatically on pushes to `main`. It pulls the latest code on the server, rsyncs the static files to `/var/www/html`, and writes `last-updated.js` with the commit time of the deployed code (shown in the page footer).
+The `deploy` CI job runs automatically on pushes to `main`. It pulls the latest code on the server, rsyncs the static files to `/var/www/html`, writes `last-updated.js` with the commit time of the deployed code (shown in the page footer), and stamps the commit into the script URLs of the deployed page (`eliza.js?v=<commit>`) so caches never serve an old script. The server's nginx also sends `Cache-Control: no-cache` for `.js` and `.html` files; that setting lives on the server, not in this repo.
 
 To deploy manually from the server:
 
